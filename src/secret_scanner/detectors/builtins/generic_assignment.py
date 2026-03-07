@@ -1,4 +1,5 @@
 import logging
+from secret_scanner.models import SourceFragment
 from secret_scanner.models import Candidate, CandidateKind  # Добавьте этот импорт
 from secret_scanner.detectors.base import BaseDetector  # Добавьте этот импорт
 logger = logging.getLogger(__name__)

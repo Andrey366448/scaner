@@ -6,7 +6,7 @@ class SarifReporter(BaseReporter):
             "version": "2.1.0",
             "runs": [{
                 "tool": {
-                    "driver": {"name": "secret-scan", "version": "1.0.0"}
+                    "driver": {"name": "secret-scanner", "version": "1.0.0"}
                 },
                 "results": [{
                     "ruleId": finding.detector_id,

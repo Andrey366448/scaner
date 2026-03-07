@@ -15,6 +15,8 @@ class SeverityScorer:
             score += 0.4
         if bool(candidate.metadata.get("certain_secret")):
             score = max(score, 1.7)
+        if candidate.detector_id == "generic_assignment" and bool(candidate.metadata.get("obvious_secret_key")):
+            score = max(score, 1.7)
         if candidate.detector_id == "generic_assignment" and bool(candidate.metadata.get("explicit_literal")):
             score = max(score, 1.7)
         if score >= 1.7:

@@ -49,3 +49,21 @@ def test_sarif_reporter_outputs_valid_structure(tmp_path: Path) -> None:
     assert run["tool"]["driver"]["name"] == "secret-scanner"
     assert run["results"]
     assert run["results"][0]["locations"][0]["physicalLocation"]["artifactLocation"]["uri"].endswith("app.py")
+def test_generic_assignment_does_not_flag_regular_non_secret_assignments(tmp_path: Path) -> None:
+    target = tmp_path / "settings.py"
+    target.write_text('PORT = 8080\nTIMEOUT = 30\nDEBUG = true\n', encoding="utf-8")
+
+    scanner = build_scanner([str(tmp_path)], AppConfig(), use_baseline=False)
+    result = scanner.run()
+
+    assert result.findings == []
+
+
+def test_generic_assignment_dummy_value_is_suppressed(tmp_path: Path) -> None:
+    target = tmp_path / "app.py"
+    target.write_text('TOKEN = "dummy"\n', encoding="utf-8")
+
+    scanner = build_scanner([str(tmp_path)], AppConfig(), use_baseline=False)
+    result = scanner.run()
+
+    assert result.findings == []

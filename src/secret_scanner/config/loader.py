@@ -1,6 +1,8 @@
 from __future__ import annotations
-
-import tomllib
+try:
+    import tomllib
+except ModuleNotFoundError:  # pragma: no cover - Python < 3.11
+    import tomli as tomllib
 from pathlib import Path
 from typing import Any
 
@@ -26,18 +28,3 @@ def find_default_config(start_dir: Path | None = None) -> Path | None:
         for filename in DEFAULT_CONFIG_FILENAMES:
             candidate = directory / filename
             if candidate.exists() and candidate.is_file():
-                return candidate
-    return None
-
-
-def load_config(config_path: str | None = None) -> AppConfig:
-    if config_path is None:
-        found = find_default_config()
-        if found is None:
-            return AppConfig()
-        return AppConfig.model_validate(_load_toml(found))
-
-    path = Path(config_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Config file not found: {path}")
-    return AppConfig.model_validate(_load_toml(path))

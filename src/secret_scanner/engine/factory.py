@@ -5,7 +5,7 @@ from secret_scanner.collectors.filesystem import FilesystemCollector
 from secret_scanner.collectors.git_diff import GitDiffCollector
 from secret_scanner.collectors.git_staged import GitStagedCollector
 from secret_scanner.config.models import AppConfig
-from secret_scanner.detectors.builtins.generic_assignment import GenericAssignmentDetector
+from secret_scanner.detectors.builtins.generic_assignment import EnhancedGenericAssignmentDetector
 from secret_scanner.detectors.builtins.jwt import JwtDetector
 from secret_scanner.detectors.builtins.private_key import PrivateKeyDetector
 from secret_scanner.detectors.builtins.uri_credentials import UriCredentialsDetector
@@ -32,7 +32,7 @@ def build_scanner(
     if "private_key" in enabled:
         detectors.append(PrivateKeyDetector())
     if "generic_assignment" in enabled:
-        detectors.append(GenericAssignmentDetector())
+        detectors.append(EnhancedGenericAssignmentDetector())
     if "jwt" in enabled:
         detectors.append(JwtDetector())
     if "uri_credentials" in enabled:

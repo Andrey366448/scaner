@@ -6,7 +6,7 @@ class CandidateKind(str, Enum):
     KEYWORD_VALUE = "keyword_value"
     STRUCTURAL = "structural"
     DECODED = "decoded"
-
+    GENERIC_ASSIGNMENT = "generic_assignment"
 
 class Severity(str, Enum):
     CRITICAL = "critical"

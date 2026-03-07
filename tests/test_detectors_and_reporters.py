@@ -105,3 +105,13 @@ def test_generic_assignment_detects_high_entropy_secret(tmp_path: Path) -> None:
 
     assert any(f.detector_id == "generic_assignment" for f in result.findings)
 
+
+def test_generic_assignment_explicit_literal_is_critical(tmp_path: Path) -> None:
+    target = tmp_path / "app.py"
+    target.write_text('TOKEN = "fdfkdjf_32kfdj_jfdd32"\n', encoding="utf-8")
+
+    scanner = build_scanner([str(tmp_path)], AppConfig(), use_baseline=False)
+    result = scanner.run()
+
+    finding = next(f for f in result.findings if f.detector_id == "generic_assignment")
+    assert finding.severity == "critical"

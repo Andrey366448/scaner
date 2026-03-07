@@ -63,6 +63,7 @@ class EnhancedGenericAssignmentDetector(BaseDetector):
         for match in ASSIGNMENT_RE.finditer(fragment.content):
             value = match.group("value").strip()
             key = match.group("key").lower()
+            quote = match.group("quote")
             if not self._is_plausible_secret(key, value):
                 continue
 
@@ -81,6 +82,7 @@ class EnhancedGenericAssignmentDetector(BaseDetector):
                     metadata={
                         "provider_known": False,
                         "certain_secret": value.strip().startswith(_KNOWN_SECRET_PREFIXES),
+                        "explicit_literal": bool(quote),
                         "assignment_key": key,
                         "entropy": self._shannon_entropy(value),
                         "line_text": line_text,

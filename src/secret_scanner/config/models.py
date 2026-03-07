@@ -36,11 +36,18 @@ class FiltersConfig(BaseModel):
             "xxx",
         ]
     )
+    suppress_test_paths: bool = True
+    inline_ignore_markers: list[str] = Field(default_factory=lambda: ["secret-scan: ignore"])
 
 
 class DetectorsConfig(BaseModel):
     enabled: list[str] = Field(
-        default_factory=lambda: ["private_key", "generic_assignment"]
+        default_factory=lambda: [
+            "private_key",
+            "generic_assignment",
+            "jwt",
+            "uri_credentials",
+        ]
     )
 
 

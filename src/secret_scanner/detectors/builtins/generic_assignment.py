@@ -23,7 +23,7 @@ SUSPICIOUS_KEYS: dict[str, float] = {
 }
 
 ASSIGNMENT_RE = re.compile(
-    r"(?P<key>[A-Za-z_][A-Za-z0-9_\-]{1,60})\s*(?:=|:|=>)\s*(?P<quote>['\"]?)(?P<value>[^'\"\n\r]{4,300})(?P=quote)"
+    r'''(?P<key>[A-Za-z_][A-Za-z0-9_\-]{1,60})\s*(?:=|:|=>)\s*(?P<quote>['"]?)(?P<value>[^'"\n\r]{4,300})(?P=quote)'''
 )
 
 
@@ -33,6 +33,7 @@ class GenericAssignmentDetector(BaseDetector):
 
     def detect(self, fragment: SourceFragment) -> list[Candidate]:
         results: list[Candidate] = []
+        lines = fragment.content.splitlines() or [fragment.content]
         for match in ASSIGNMENT_RE.finditer(fragment.content):
             key = match.group("key")
             value = match.group("value").strip()
@@ -52,6 +53,7 @@ class GenericAssignmentDetector(BaseDetector):
                     "line_end": line_start,
                 }
             )
+            line_text = lines[line_start - 1] if 0 < line_start <= len(lines) else match.group(0)
             results.append(
                 Candidate(
                     kind=CandidateKind.KEYWORD_VALUE,
@@ -65,6 +67,7 @@ class GenericAssignmentDetector(BaseDetector):
                         "key_weight": key_weight,
                         "entropy": entropy,
                         "provider_known": False,
+                        "line_text": line_text,
                     },
                     confidence=confidence,
                 )

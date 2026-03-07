@@ -14,6 +14,9 @@ class TextReporter:
             lines.append(f"  file: {finding.span.path}:{finding.span.line_start}")
             lines.append(f"  detector: {finding.detector_id}")
             lines.append(f"  secret: {finding.secret_masked}")
+            line_text = str(finding.metadata.get("line_text", "")).strip()
+            if line_text:
+                lines.append(f"  line: {line_text}")
             lines.append(f"  confidence: {finding.confidence:.2f}")
             lines.append("")
         return "\n".join(lines).rstrip()

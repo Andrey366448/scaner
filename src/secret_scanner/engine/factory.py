@@ -6,11 +6,15 @@ from secret_scanner.collectors.git_diff import GitDiffCollector
 from secret_scanner.collectors.git_staged import GitStagedCollector
 from secret_scanner.config.models import AppConfig
 from secret_scanner.detectors.builtins.generic_assignment import GenericAssignmentDetector
+from secret_scanner.detectors.builtins.jwt import JwtDetector
 from secret_scanner.detectors.builtins.private_key import PrivateKeyDetector
+from secret_scanner.detectors.builtins.uri_credentials import UriCredentialsDetector
 from secret_scanner.engine.scanner import Scanner
 from secret_scanner.filters.baseline_filter import BaselineFilter
 from secret_scanner.filters.dummy_value_filter import DummyValueFilter
+from secret_scanner.filters.inline_ignore_filter import InlineIgnoreFilter
 from secret_scanner.filters.path_filter import PathFilter
+from secret_scanner.filters.context_filter import TestContextFilter
 
 
 def build_scanner(
@@ -29,11 +33,18 @@ def build_scanner(
         detectors.append(PrivateKeyDetector())
     if "generic_assignment" in enabled:
         detectors.append(GenericAssignmentDetector())
+    if "jwt" in enabled:
+        detectors.append(JwtDetector())
+    if "uri_credentials" in enabled:
+        detectors.append(UriCredentialsDetector())
 
     filters = [
         PathFilter(ignore_paths=config.filters.ignore_paths),
         DummyValueFilter(dummy_values=config.filters.dummy_values),
+        InlineIgnoreFilter(markers=config.filters.inline_ignore_markers),
     ]
+    if config.filters.suppress_test_paths:
+        filters.append(TestContextFilter())
 
     baseline_enabled = config.baseline.use_baseline if use_baseline is None else use_baseline
     if baseline_enabled:

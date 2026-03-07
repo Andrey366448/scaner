@@ -7,7 +7,7 @@ from secret_scanner.config import load_config
 from secret_scanner.engine.factory import build_scanner
 from secret_scanner.exit_codes import ExitCodes
 from secret_scanner.models import Severity
-from secret_scanner.reporters import JsonReporter, TextReporter
+from secret_scanner.reporters import JsonReporter, SarifReporter, TextReporter
 
 app = typer.Typer(help="Developer-first secret scanner")
 baseline_app = typer.Typer(help="Manage baseline files")
@@ -18,7 +18,7 @@ app.add_typer(baseline_app, name="baseline")
 def scan(
     paths: list[str] = typer.Argument(None, help="Files or directories to scan."),
     config: str | None = typer.Option(None, "--config", help="Path to TOML config."),
-    format: str | None = typer.Option(None, "--format", help="Output format: text or json."),
+    format: str | None = typer.Option(None, "--format", help="Output format: text, json or sarif."),
     staged: bool = typer.Option(False, "--staged", help="Scan staged content from git index."),
     git_diff: str | None = typer.Option(None, "--git-diff", help="Scan changed files from a git refspec, e.g. origin/main..HEAD."),
     no_baseline: bool = typer.Option(False, "--no-baseline", help="Ignore baseline suppression for this run."),
@@ -116,6 +116,8 @@ def _write_baseline(paths: list[str], config_path: str | None, staged: bool, git
 def _render_result(result, output_format: str) -> None:
     if output_format == "json":
         typer.echo(JsonReporter().render(result))
+    elif output_format == "sarif":
+        typer.echo(SarifReporter().render(result))
     else:
         typer.echo(TextReporter().render(result))
 

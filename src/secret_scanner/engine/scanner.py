@@ -56,6 +56,9 @@ class Scanner:
         finding_id = fingerprint[:12]
         title = candidate.detector_id.replace("_", " ").title()
         description = f"Potential secret found by detector '{candidate.detector_id}'."
+        tags = [candidate.detector_id]
+        if candidate.metadata.get("provider_known"):
+            tags.append("provider-specific")
         return Finding(
             id=finding_id,
             detector_id=candidate.detector_id,
@@ -66,6 +69,7 @@ class Scanner:
             secret_masked=candidate.secret_masked,
             fingerprint=fingerprint,
             metadata=candidate.metadata,
+            tags=tags,
             confidence=confidence,
         )
 

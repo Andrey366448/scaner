@@ -115,13 +115,3 @@ def test_generic_assignment_explicit_literal_is_critical(tmp_path: Path) -> None
 
     finding = next(f for f in result.findings if f.detector_id == "generic_assignment")
     assert finding.severity == "critical"
-
-def test_generic_assignment_obvious_secret_key_without_quotes_is_critical(tmp_path: Path) -> None:
-    target = tmp_path / "main.tf"
-    target.write_text("TOKEN = y0__xCV7uzWARjB3RMgt7yTsxYwnt3Z2gcbF5bxrU_h-WudRinPL_JDcyF_Pg\n", encoding="utf-8")
-
-    scanner = build_scanner([str(tmp_path)], AppConfig(), use_baseline=False)
-    result = scanner.run()
-
-    finding = next(f for f in result.findings if f.detector_id == "generic_assignment")
-    assert finding.severity == "critical"

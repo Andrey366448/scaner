@@ -50,7 +50,6 @@ _KNOWN_SECRET_PREFIXES = (
     "eyJ",
 )
 
-_CRITICAL_KEY_HINTS = ("token", "key", "secret", "password", "passwd", "pwd")
 
 class EnhancedGenericAssignmentDetector(BaseDetector):
     detector_id = "generic_assignment"
@@ -84,7 +83,6 @@ class EnhancedGenericAssignmentDetector(BaseDetector):
                         "certain_secret": value.strip().startswith(_KNOWN_SECRET_PREFIXES),
                         "explicit_literal": bool(quote),
                         "assignment_key": key,
-                        "obvious_secret_key": any(hint in key for hint in _CRITICAL_KEY_HINTS),
                         "entropy": self._shannon_entropy(value),
                         "line_text": line_text,
                     },

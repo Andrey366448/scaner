@@ -1,1 +1,1 @@
-TOKEN = "sk_live_super_secret"
+API_KEY = "old_secret_value"

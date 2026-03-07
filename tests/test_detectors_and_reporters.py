@@ -80,9 +80,28 @@ def test_uri_credentials_ignores_too_short_passwords(tmp_path: Path) -> None:
 
 def test_uri_credentials_still_detects_reasonable_passwords(tmp_path: Path) -> None:
     target = tmp_path / "app.py"
-    target.write_text('DB_URL = "postgres://alice:abcd@db.internal/app"\n', encoding="utf-8")
-
+    target.write_text('DB_URL = "postgres://alice:s3cr3t9@db.internal/app"\n', encoding="utf-8")
     scanner = build_scanner([str(tmp_path)], AppConfig(), use_baseline=False)
     result = scanner.run()
 
     assert any(f.detector_id == "uri_credentials" for f in result.findings)
+
+def test_generic_assignment_ignores_placeholders(tmp_path: Path) -> None:
+    target = tmp_path / "app.py"
+    target.write_text('API_KEY = "your_example_token_here"\n', encoding="utf-8")
+
+    scanner = build_scanner([str(tmp_path)], AppConfig(), use_baseline=False)
+    result = scanner.run()
+
+    assert all(f.detector_id != "generic_assignment" for f in result.findings)
+
+
+def test_generic_assignment_detects_high_entropy_secret(tmp_path: Path) -> None:
+    target = tmp_path / "app.py"
+    target.write_text('API_KEY = "Ab9_Xz2mQ7pLk3vT"\n', encoding="utf-8")
+
+    scanner = build_scanner([str(tmp_path)], AppConfig(), use_baseline=False)
+    result = scanner.run()
+
+    assert any(f.detector_id == "generic_assignment" for f in result.findings)
+

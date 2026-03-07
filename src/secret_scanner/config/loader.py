@@ -8,9 +8,6 @@ try:
     import tomllib
 except ModuleNotFoundError:  # pragma: no cover - Python < 3.11
     import tomli as tomllib
-from pathlib import Path
-from typing import Any
-
 from secret_scanner.config.defaults import DEFAULT_CONFIG_FILENAMES
 from secret_scanner.config.models import AppConfig
 
@@ -33,19 +30,25 @@ def find_default_config(start_dir: Path | None = None) -> Path | None:
         for filename in DEFAULT_CONFIG_FILENAMES:
             candidate = directory / filename
             if candidate.exists() and candidate.is_file():
-                return candidate
+                 return candidate
     return None
 
 
 def load_config(path: str | None = None) -> AppConfig:
+    config_path: Path | None
     if path is not None:
-        config_path = Path(path)
+        config_path = Path(path).expanduser().resolve()
         if not config_path.exists() or not config_path.is_file():
             raise FileNotFoundError(f"Config file not found: {config_path}")
-        return AppConfig.model_validate(_load_toml(config_path))
+    else:
+        config_path = find_default_config()
 
-    default_config = find_default_config()
-    if default_config is None:
+    if config_path is None:
         return AppConfig()
 
-    return AppConfig.model_validate(_load_toml(default_config))
+    data = _load_toml(config_path)
+    if not isinstance(data, dict):
+        return AppConfig()
+
+    return AppConfig.model_validate(data)
+

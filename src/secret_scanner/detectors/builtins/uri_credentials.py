@@ -19,8 +19,12 @@ SUPPORTED_SCHEMES = {
     "amqp",
     "ftp",
     "sftp",
+   "mongodb+srv",
 }
 
+_IGNORED_PASSWORDS = {"password", "passwd", "secret", "admin", "root", "guest", "test", "dummy", "example", "changeme", "123456", "qwerty"}
+
+_MIN_PASSWORD_LENGTH = 4
 
 class UriCredentialsDetector(BaseDetector):
     detector_id = "uri_credentials"
@@ -42,6 +46,10 @@ class UriCredentialsDetector(BaseDetector):
             password = parsed.password or ""
             if not password:
                 continue
+            if len(password) < 6:
+                continue
+            if password.lower() in _IGNORED_PASSWORDS:
+                continue
             line_start = fragment.content[: match.start()].count("\n") + 1
             span = fragment.span.model_copy(update={"line_start": line_start, "line_end": line_start})
             line_text = lines[line_start - 1] if 0 < line_start <= len(lines) else uri
@@ -59,9 +67,21 @@ class UriCredentialsDetector(BaseDetector):
                         "uri_scheme": parsed.scheme.lower(),
                         "uri_username": parsed.username,
                         "embedded_credentials": True,
+                        "entropy": self._shannon_entropy(password),
                         "line_text": line_text,
                     },
                     confidence=1.05,
                 )
             )
         return results
+    @staticmethod
+    def _shannon_entropy(value: str) -> float:
+        from math import log2
+
+        if not value:
+            return 0.0
+        counts: dict[str, int] = {}
+        for char in value:
+            counts[char] = counts.get(char, 0) + 1
+        length = len(value)
+        return -sum((count / length) * log2(count / length) for count in counts.values())

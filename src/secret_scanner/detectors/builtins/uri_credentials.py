@@ -64,6 +64,7 @@ class UriCredentialsDetector(BaseDetector):
                     secret_masked=masked_uri,
                     metadata={
                         "provider_known": False,
+                        "certain_secret": True,
                         "uri_scheme": parsed.scheme.lower(),
                         "uri_username": parsed.username,
                         "embedded_credentials": True,

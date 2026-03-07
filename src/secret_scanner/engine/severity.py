@@ -13,6 +13,8 @@ class SeverityScorer:
             score += 0.8
         if bool(candidate.metadata.get("provider_known")):
             score += 0.4
+        if bool(candidate.metadata.get("certain_secret")):
+            score = max(score, 1.7)
         if score >= 1.7:
             return Severity.CRITICAL, score
         if score >= 1.2:

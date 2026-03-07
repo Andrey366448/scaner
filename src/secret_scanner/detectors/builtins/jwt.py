@@ -43,6 +43,7 @@ class JwtDetector(BaseDetector):
                     secret_masked=mask_secret(token),
                     metadata={
                         "provider_known": False,
+                        "certain_secret": True,
                         "jwt_alg": decoded_header.get("alg"),
                         "jwt_typ": decoded_header.get("typ"),
                         "jwt_claim_keys": sorted(decoded_payload.keys())[:10],

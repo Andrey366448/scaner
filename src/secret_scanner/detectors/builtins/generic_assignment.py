@@ -80,6 +80,7 @@ class EnhancedGenericAssignmentDetector(BaseDetector):
                     secret_masked=mask_secret(value),
                     metadata={
                         "provider_known": False,
+                        "certain_secret": value.strip().startswith(_KNOWN_SECRET_PREFIXES),
                         "assignment_key": key,
                         "entropy": self._shannon_entropy(value),
                         "line_text": line_text,
